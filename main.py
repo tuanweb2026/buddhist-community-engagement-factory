@@ -250,7 +250,12 @@ def run_daily_pipeline(dry_run_override: bool = False):
                     print("\n  👉 [SUPERVISED APPROVAL REQUIRED]")
                     print(f"  Bình luận sắp đăng lên: {video.title}")
                     print(f"  Nội dung: \"{best_candidate.content}\"")
-                    confirm = input("  Xác nhận đăng bình luận này lên YouTube? (y/N): ").strip().lower()
+                    try:
+                        confirm = input("  Xác nhận đăng bình luận này lên YouTube? (y/N): ").strip().lower()
+                    except EOFError:
+                        print("  [!] Chạy trong môi trường nền (Cron). Tự động bỏ qua do không thể xác nhận (Supervised Mode).")
+                        confirm = "n"
+                    
                     if confirm == "y":
                         published_comment_id, error_msg = publisher.publish_comment(video.video_id, best_candidate.content)
                         publish_status = "PUBLISHED" if published_comment_id else "FAILED"
