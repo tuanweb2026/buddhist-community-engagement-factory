@@ -10,6 +10,45 @@ from app_config import YOUTUBE_API_KEY, DISCOVERY_KEYWORDS
 from db_storage import is_video_processed
 from language_detector import detect_community_language
 
+from app_config import MIN_VIEWS_THRESHOLD, MIN_SUBS_THRESHOLD
+import requests
+
+def fetch_stats_and_filter(videos: List[VideoMetadata]) -> List[VideoMetadata]:
+    if not YOUTUBE_API_KEY:
+        return videos
+    filtered = []
+    for v in videos:
+        try:
+            # Lấy video view count
+            v_url = f"https://www.googleapis.com/youtube/v3/videos?part=statistics&id={v.video_id}&key={YOUTUBE_API_KEY}"
+            v_res = requests.get(v_url, timeout=5).json()
+            if not v_res.get("items"):
+                continue
+            views = int(v_res["items"][0]["statistics"].get("viewCount", 0))
+            v.view_count = views
+            
+            # Lấy channel sub count
+            if v.channel_id:
+                c_url = f"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={v.channel_id}&key={YOUTUBE_API_KEY}"
+                c_res = requests.get(c_url, timeout=5).json()
+                if c_res.get("items"):
+                    subs = int(c_res["items"][0]["statistics"].get("subscriberCount", 0))
+                else:
+                    subs = 0
+            else:
+                subs = 0
+                
+            if views >= MIN_VIEWS_THRESHOLD and subs >= MIN_SUBS_THRESHOLD:
+                print(f"      [OK] {v.title[:30]}... (Views: {views:,} | Subs: {subs:,})")
+                filtered.append(v)
+            else:
+                print(f"      [SKIPPED] {v.title[:30]}... (Views: {views:,} | Subs: {subs:,} -> Không đạt ngưỡng {MIN_VIEWS_THRESHOLD}/{MIN_SUBS_THRESHOLD})")
+                
+        except Exception as e:
+            pass
+    return filtered
+
+
 def discover_videos(target_count: int = 5) -> List[VideoMetadata]:
     discovered = []
     seen_ids = set()
@@ -19,7 +58,7 @@ def discover_videos(target_count: int = 5) -> List[VideoMetadata]:
         try:
             import requests
             for kw in DISCOVERY_KEYWORDS:
-                if len(discovered) >= target_count:
+                if len(discovered) >= target_count*3:
                     break
                 url = "https://www.googleapis.com/youtube/v3/search"
                 params = {
@@ -53,10 +92,10 @@ def discover_videos(target_count: int = 5) -> List[VideoMetadata]:
                             published_at=snip.get("publishedAt"),
                             language=lang
                         ))
-                        if len(discovered) >= target_count:
+                        if len(discovered) >= target_count*3:
                             break
             if discovered:
-                return discovered
+                return fetch_stats_and_filter(discovered)
         except Exception as e:
             print(f"[!] YouTube API gặp sự cố ({e}), chuyển sang fallback yt-dlp.")
 
@@ -73,7 +112,7 @@ def discover_videos(target_count: int = 5) -> List[VideoMetadata]:
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             for kw in DISCOVERY_KEYWORDS:
-                if len(discovered) >= target_count:
+                if len(discovered) >= target_count*3:
                     break
                 res = ydl.extract_info(f"ytsearch3:{kw}", download=False)
                 for entry in res.get("entries", []):
@@ -100,9 +139,9 @@ def discover_videos(target_count: int = 5) -> List[VideoMetadata]:
                         view_count=entry.get("view_count", 0) or 0,
                         language=lang
                     ))
-                    if len(discovered) >= target_count:
+                    if len(discovered) >= target_count*3:
                         break
     except Exception as e:
         print(f"[!] Lỗi discovery yt-dlp: {e}")
 
-    return discovered[:target_count]
+    return fetch_stats_and_filter(discovered[:target_count*3])[:target_count]

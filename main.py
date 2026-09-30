@@ -116,13 +116,6 @@ def run_daily_pipeline(dry_run_override: bool = False):
     for v in discovered:
         if has_video_published(v.video_id):
             continue
-        if v.language == "LANGUAGE_UNCERTAIN":
-            skipped_records.append({
-                "title": v.title,
-                "video_id": v.video_id,
-                "reason": "SKIPPED — LANGUAGE_UNCERTAIN (Không xác định được cộng đồng tiếng Việt hay nước ngoài)"
-            })
-            continue
         eligible_videos.append(v)
 
     queue = VideoPriorityQueue()

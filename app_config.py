@@ -37,6 +37,8 @@ TARGET_CHANNEL_HANDLE = "@1995lido"
 DISCOVERY_KEYWORDS = [
     # Tiếng Việt (Cộng đồng Việt Nam)
     "thuyết pháp Thích Pháp Hòa",
+    "nhạc thiền tĩnh tâm",
+    "nhạc thiền Phật giáo",
     "thiền buông thư Thích Nhất Hạnh",
     "lời Phật dạy về sự an lạc",
     "bài học buông bỏ khổ đau",
@@ -46,3 +48,7 @@ DISCOVERY_KEYWORDS = [
     "Ajahn Chah teachings",
     "Dalai Lama peace compassion"
 ]
+
+# Custom Filter
+MIN_VIEWS_THRESHOLD = int(os.getenv("MIN_VIEWS", 500000))
+MIN_SUBS_THRESHOLD = int(os.getenv("MIN_SUBS", 100000))
