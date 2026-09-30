@@ -1,0 +1,52 @@
+# Environment variables & secrets (CRITICAL: DO NOT COMMIT)
+.env
+.env.*
+!.env.example
+client_secret*.json
+client_secrets*.json
+token*.json
+credentials/
+*secret*
+*token*
+
+# Python bytecode & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# SQLite Database & local runtime data
+data/*.db
+data/*.db-journal
+data/*.sqlite
+data/*.sqlite3
+data/test_*.db
+*.db
+*.db-journal
+
+# Logs & Temporary files
+logs/*.log
+logs/*.txt
+*.log
+/tmp/bce_factory.lock
+
+# Operating System & IDE files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Pytest cache
+.pytest_cache/
+.coverage
+htmlcov/
