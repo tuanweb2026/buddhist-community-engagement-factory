@@ -88,10 +88,26 @@ def check_system_health() -> Dict[str, Any]:
     else:
         res["llm_api"] = "FAIL (Missing LLM_API_KEY)"
 
-    # Cron Status
+    # Scheduler Status (LaunchAgent or Cron)
+    import subprocess
+    launchd_ok = False
+    try:
+        r = subprocess.run(["launchctl", "list"], capture_output=True, text=True)
+        if "com.bce.factory" in r.stdout:
+            launchd_ok = True
+    except Exception:
+        pass
+
     cron_info = check_cron_configuration()
-    res["cron_installed"] = "YES" if cron_info["installed"] else "NO"
-    res["cron_config"] = "OK" if cron_info["valid"] else ("MISSING" if not cron_info["block_found"] else "MALFORMED")
+    if launchd_ok:
+        res["cron_installed"] = "YES (LaunchAgent)"
+        res["cron_config"] = "OK"
+    elif cron_info["installed"]:
+        res["cron_installed"] = "YES (Cron)"
+        res["cron_config"] = "OK" if cron_info["valid"] else "MALFORMED"
+    else:
+        res["cron_installed"] = "NO"
+        res["cron_config"] = "MISSING" 
 
     # Last Jobs Check (Lấy thời gian thực tế trong DB)
     res["last_discovery"] = _format_job_time("discovery")
