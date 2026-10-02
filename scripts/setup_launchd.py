@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 
 HOME = str(Path.home())
-PROJECT_DIR = "/Users/abc/Documents/BUDDHIST COMMUNITY ENGAGEMENT FACTORY"
+PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PYTHON_BIN = os.path.join(PROJECT_DIR, ".venv/bin/python")
 LOGS_DIR = os.path.join(PROJECT_DIR, "logs")
 LAUNCH_AGENTS_DIR = os.path.join(HOME, "Library/LaunchAgents")

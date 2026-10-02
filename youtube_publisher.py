@@ -52,8 +52,18 @@ class YouTubePublisher:
                 try:
                     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
                     creds = flow.run_local_server(port=0)
+                    data = json.loads(creds.to_json())
+                    if os.path.exists(CLIENT_SECRETS_FILE):
+                        try:
+                            with open(CLIENT_SECRETS_FILE, "r") as cs_f:
+                                cs_data = json.load(cs_f)
+                                c_info = cs_data.get("installed") or cs_data.get("web") or {}
+                                data["client_id"] = c_info.get("client_id")
+                                data["client_secret"] = c_info.get("client_secret")
+                        except Exception:
+                            pass
                     with open(TOKEN_STORAGE_FILE, "w") as token:
-                        token.write(creds.to_json())
+                        json.dump(data, token, indent=2)
                 except Exception as e:
                     print(f"[!] Quá trình OAuth thất bại: {e}")
                     return False
