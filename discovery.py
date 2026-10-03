@@ -64,7 +64,8 @@ def discover_videos(target_count: int = 5) -> List[VideoMetadata]:
                 params = {
                     "part": "snippet",
                     "q": kw,
-                    "maxResults": 3,
+                    "maxResults": 10,
+                    "order": "viewCount",
                     "type": "video",
                     "key": YOUTUBE_API_KEY
                 }
