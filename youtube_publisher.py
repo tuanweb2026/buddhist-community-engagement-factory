@@ -163,3 +163,17 @@ class YouTubePublisher:
             print(f"[!] Không thể lấy metrics cho {comment_thread_id}: {e}")
 
         return metrics
+
+    def like_video(self, video_id: str) -> bool:
+        """
+        Tự động thả Like cho Video mục tiêu bằng tài khoản @1995lido qua YouTube API
+        """
+        if not self.service:
+            return False
+        try:
+            self.service.videos().rate(id=video_id, rating="like").execute()
+            print(f"  👍 [LIKE VIDEO] Đã thả Like thành công cho Video {video_id}!")
+            return True
+        except Exception as e:
+            print(f"  [!] Không thể Like video {video_id}: {e}")
+            return False

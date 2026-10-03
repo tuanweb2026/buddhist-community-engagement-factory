@@ -261,6 +261,7 @@ def run_daily_pipeline(dry_run_override: bool = False):
                         publish_status = "PUBLISHED" if published_comment_id else "FAILED"
                         if published_comment_id:
                             print(f"  🚀 [THÀNH CÔNG] Đã đăng! Comment ID: {published_comment_id}")
+                            publisher.like_video(video.video_id)
                         else:
                             print(f"  🛑 [THẤT BẠI] Lỗi: {error_msg}")
                     else:
@@ -276,6 +277,7 @@ def run_daily_pipeline(dry_run_override: bool = False):
                     publish_status = "PUBLISHED" if published_comment_id else "FAILED"
                     if published_comment_id:
                         print(f"  🚀 [AUTOPILOT PUBLISHED] Comment ID: {published_comment_id}")
+                        publisher.like_video(video.video_id)
                     else:
                         print(f"  🛑 [AUTOPILOT FAILED] Lỗi: {error_msg}")
 
